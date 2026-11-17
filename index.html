@@ -335,20 +335,27 @@ html,body,*{scrollbar-width:none;-ms-overflow-style:none}
   html[lang^=zh] body, html[lang^=zh] body * { font-family:'Noto Serif SC','Noto Sans SC','Battambang',serif !important; }
   html[lang^=zh] #nameHint.bad::before, html[lang^=zh] #dobHint.bad::before { content:'大师：'; }
   html[lang^=zh] .brand b, html[lang^=zh] #siteBar b { font-weight:900; letter-spacing:.04em; }
-  #langSw { position:absolute; top:calc(18px + env(safe-area-inset-top)); right:14px; z-index:5; display:flex; gap:2px; padding:3px; border:1px solid rgba(246,198,134,.45); border-radius:20px; background:rgba(20,4,4,.55); }
-  #langSw button { all:unset; cursor:pointer; padding:4px 11px; border-radius:16px; font:13px/1.4 'Battambang','Noto Sans SC',sans-serif; color:rgba(248,231,191,.75); }
   html[lang] #langSw button[data-l=km], html[lang] #langLink.km { font-family:'Battambang',sans-serif !important; }
-  #langSw button.on { background:linear-gradient(180deg,#f6c686,#c98f3a); color:#2a0606; font-weight:700; }
-  @media (max-width:379px){   /* small phones: keep the language switch clear of the title */
-    #langSw { top:calc(12px + env(safe-area-inset-top)); right:8px; padding:2px; }
-    #langSw button { padding:2px 7px; font-size:11px; }
-  }
   /* Caption box in the same gold ornament frame as the reading text */
   #line.box { padding:20px 26px !important; border:2.5px solid #F6C686 !important; border-radius:12px !important;
     background:url('assets/frame/tl.svg') 3px 3px / 30px 30px no-repeat, url('assets/frame/tr.svg') calc(100% - 3px) 3px / 30px 30px no-repeat,
       url('assets/frame/bl.svg') 3px calc(100% - 3px) / 30px 30px no-repeat, url('assets/frame/br.svg') calc(100% - 3px) calc(100% - 3px) / 30px 30px no-repeat,
       linear-gradient(180deg, rgba(92,20,18,.88), rgba(40,8,8,.92)) !important; }
   #line.box::after { content:''; position:absolute; inset:7px; border:1px solid rgba(246,198,134,.55); border-radius:7px; pointer-events:none; }
+  /* Language: small globe + dropdown, bottom-left of the opening screen */
+  #langSw { position:absolute; left:14px; bottom:calc(16px + env(safe-area-inset-bottom)); z-index:6; }
+  #langBtn { all:unset; cursor:pointer; display:flex; align-items:center; gap:6px; padding:6px 10px 6px 8px; border-radius:18px;
+    border:1px solid rgba(246,198,134,.5); background:rgba(20,4,4,.6); color:#f8e7bf; font:13px/1 'Battambang','Noto Sans SC',sans-serif; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
+  #langBtn svg { width:16px; height:16px; fill:none; stroke:#f6c686; stroke-width:1.5; }
+  #langBtn i { font-style:normal; font-size:10px; opacity:.7; transition:transform .2s; }
+  #langSw.open #langBtn i { transform:rotate(180deg); }
+  #langMenu { position:absolute; left:0; bottom:calc(100% + 6px); min-width:100%; display:flex; flex-direction:column; padding:4px; border-radius:12px;
+    border:1px solid rgba(246,198,134,.5); background:rgba(26,6,6,.94); box-shadow:0 8px 24px rgba(0,0,0,.5);
+    opacity:0; transform:translateY(6px); pointer-events:none; transition:opacity .18s, transform .18s; }
+  #langSw.open #langMenu { opacity:1; transform:none; pointer-events:auto; }
+  #langMenu button { all:unset; cursor:pointer; padding:7px 12px; border-radius:8px; white-space:nowrap; color:rgba(248,231,191,.85); font:14px/1.3 'Noto Sans SC',sans-serif; }
+  #langMenu button.on { background:linear-gradient(180deg,#f6c686,#c98f3a); color:#2a0606; font-weight:700; }
+  html[lang] #langMenu button[data-l=km], html[lang] #langLink.km, html[lang^=km] #langCur { font-family:'Battambang',sans-serif !important; }
 </style>
 </head>
 <body>
@@ -415,8 +422,9 @@ html,body,*{scrollbar-width:none;-ms-overflow-style:none}
   <div id="dip"></div>
 <div id="tap">
     <section class="hero">
+      <div id="langSw"><button id="langBtn" aria-label="Language" aria-haspopup="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.2"/><path d="M2.8 12h18.4M12 2.8c2.6 2.6 3.9 5.6 3.9 9.2s-1.3 6.6-3.9 9.2M12 2.8C9.4 5.4 8.1 8.4 8.1 12s1.3 6.6 3.9 9.2"/></svg><span id="langCur"></span><i>▾</i></button><div id="langMenu" role="menu"><button data-l="km" role="menuitem">ខ្មែរ</button><button data-l="zh" role="menuitem">中文</button></div></div>
       <div class="brand"><img class="rlogo" src="assets/reasey-logo.svg" alt="Reasey"><b data-zh="Reasey">រាសី</b></div>
-      <div id="langSw"><button data-l="km">ខ្មែរ</button><button data-l="zh">中文</button></div>
+      
       <div class="hook">
         <p data-zh="«我知道你会来。»">«ខ្ញុំដឹងថាអ្នកនឹងមក។»</p>
         <div class="scrollhint" data-zh="向下滑动，阅读故事<span>⌄</span>">អូសចុះ ដើម្បីអានរឿង<span>⌄</span></div>
@@ -447,8 +455,11 @@ if(LANG==='zh'){
   document.querySelectorAll('[data-zh]').forEach(el=>el.innerHTML=el.dataset.zh);
   document.querySelectorAll('#tap img.page').forEach(im=>im.src=im.getAttribute('src').replace('assets/comic/page','assets/comic/zh/page'));
 }
-document.querySelectorAll('#langSw button').forEach(b=>{ b.classList.toggle('on', b.dataset.l===LANG);
-  b.onclick=e=>{ e.stopPropagation(); if(b.dataset.l===LANG) return; try{ localStorage.setItem('lang', b.dataset.l); }catch(_){}
+$('#langCur')&&($('#langCur').textContent=L('ខ្មែរ','中文'));
+$('#langBtn')&&($('#langBtn').onclick=e=>{ e.stopPropagation(); $('#langSw').classList.toggle('open'); });
+document.addEventListener('click', ()=>$('#langSw')?.classList.remove('open'));
+document.querySelectorAll('#langMenu button').forEach(b=>{ b.classList.toggle('on', b.dataset.l===LANG);
+  b.onclick=e=>{ e.stopPropagation(); $('#langSw').classList.remove('open'); if(b.dataset.l===LANG) return; try{ localStorage.setItem('lang', b.dataset.l); }catch(_){}
     const u=new URL(location.href); u.searchParams.delete('lang'); location.href=u.toString(); }; });
 const COMIC_DIR = L('assets/comic/page','assets/comic/zh/page');
 /* ---------- Optional art: drop files in ./assets and they replace the painted fallbacks ---------- */
