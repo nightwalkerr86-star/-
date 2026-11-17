@@ -350,16 +350,16 @@ html,body,*{scrollbar-width:none;-ms-overflow-style:none}
   <div class="bg fallback-hall" id="bgHall"></div>
   <div class="bg fallback-altar" id="bgAltar"></div>
   <video id="roomVid" src="assets/room-dark.mp4" playsinline preload="auto"></video>
-  <video id="roomIdle" src="assets/room-idle.mp4" muted loop playsinline preload="auto"></video>
+  <video id="roomIdle" muted loop playsinline preload="none"></video>
   <div id="world">
-    <img id="worldImg" src="assets/room-wide.jpg" alt="" draggable="false">
+    <img id="worldImg" alt="" draggable="false">
     <div id="player"></div>
   </div>
   <div id="grade"></div>
   <button id="exBack" data-zh="‹ 返回">‹ ត្រឡប់</button>
   <div id="exHint" data-zh="点击地面行走 · 点击光亮查看">ចុចលើកម្រាល ដើម្បីដើរ · ចុចលើពន្លឺ ដើម្បីមើល</div>
-  <video id="fateVid" src="assets/fate.mp4" muted playsinline preload="auto"></video>
-  <video id="writeVid" src="assets/write.mp4" loop playsinline preload="auto"></video>
+  <video id="fateVid" src="assets/fate.mp4" muted playsinline preload="metadata" class="later"></video>
+  <video id="writeVid" src="assets/write.mp4" loop playsinline preload="metadata" class="later"></video>
   <video id="charVid" src="assets/kru-candles.mp4" muted playsinline preload="auto"></video>
   <div id="char"></div>
   <div class="vignette"></div>
@@ -395,9 +395,9 @@ html,body,*{scrollbar-width:none;-ms-overflow-style:none}
   <div id="reading"></div>
   <div id="comic"><img alt=""><div class="hint" data-zh="点击继续">ចុចដើម្បីបន្ត</div></div>
   <div id="incense">
-    <video id="incWait" src="assets/incense-wait.mp4" muted loop playsinline preload="auto"></video>
-    <video id="incLight" src="assets/incense-light.mp4" muted playsinline preload="auto"></video>
-    <video id="incPlant" src="assets/incense-plant.mp4" muted playsinline preload="auto"></video>
+    <video id="incWait" src="assets/incense-wait.mp4" muted loop playsinline preload="metadata" class="later"></video>
+    <video id="incLight" src="assets/incense-light.mp4" muted playsinline preload="metadata" class="later"></video>
+    <video id="incPlant" src="assets/incense-plant.mp4" muted playsinline preload="metadata" class="later"></video>
     <div id="incEyes"></div>
     <div id="incTitle"></div>
     <button class="btn" id="incBtn" data-zh="点香">អុជធូប</button>
@@ -451,7 +451,7 @@ function tryImage(src, ok){ const i=new Image(); i.onload=()=>ok(src, i.naturalW
 function setBg(el, fallback){ return (s, ratio)=>{ el.classList.remove(fallback); el.style.backgroundImage=`url(${s})`; el.classList.toggle('wide', ratio>0.75); look.update(); }; }  // wider than ~3:4 → swipe to look around
 tryImage(ART.hall,  setBg($('#bgHall'),  'fallback-hall'));
 tryImage(ART.altar, setBg($('#bgAltar'), 'fallback-altar'));
-tryImage(ART.achar, s=>{ $('#char').innerHTML=`<img src="${s}" alt="">`; });
+
 
 function $(q){ return document.querySelector(q); }
 
@@ -612,13 +612,14 @@ function show(i){
   $('#bgHall').classList.toggle('on', s.bg==='hall');
   $('#bgAltar').classList.toggle('on', s.bg==='altar');
   const roomV=$('#roomVid'), useRoom=s.bg==='hall' && !s.char && roomV.readyState>=2;   // opening lines: play the walk-in once, never restart it
-  if(useRoom && !roomV.classList.contains('on') && !roomV.classList.contains('done')){ roomV.classList.add('on'); if(!roomV.dataset.played){ roomV.dataset.played='1'; roomV.currentTime=0; roomV.play().catch(()=>{}); } }
+  if(useRoom && !roomV.classList.contains('on') && !roomV.classList.contains('done')){ roomV.classList.add('on'); if(!roomV.dataset.played){ roomV.dataset.played='1'; roomV.currentTime=0; roomV.play().catch(()=>{ roomV.muted=true; roomV.play().catch(()=>roomToTeller()); });   // sound blocked → play silently; video blocked → skip to him
+    setTimeout(()=>{ if(roomV.classList.contains('on') && roomV.currentTime<0.2) roomToTeller(); }, 6000); } }   // never stuck on a frozen first frame
   if(!useRoom){ roomV.classList.remove('on'); $('#roomIdle').classList.remove('on'); $('#roomIdle').pause(); sfx.stopEnter(); }
   if(s.explore){ if(!ex.ok) return show(i+1); return startExplore(); }
   stopExplore();
   if(!s.form){ form.classList.remove('on'); $('#stage').classList.remove('asking'); }   // leaving the questions closes them
   const useWrite=!!s.char && s.vid==='write' && writeVid.readyState>=2;   // beats marked vid:'write' use the writing clip
-  writeVid.classList.toggle('on', useWrite); if(useWrite) writeVid.play().catch(()=>{}); else writeVid.pause();
+  writeVid.classList.toggle('on', useWrite); if(useWrite) writeVid.play().catch(()=>{ writeVid.muted=true; writeVid.play().catch(()=>{}); });   // sound blocked → still play, silently else writeVid.pause();
   const useVid=!!s.char && charVidOK && !useWrite;          // character scenes: full-screen looping video if it loaded, else the still image
   charVid.classList.toggle('on', useVid);
   if(useVid) charVid.play().catch(()=>{}); else charVid.pause();
@@ -664,7 +665,7 @@ const minY = x => (x>.44 && x<.56) ? .705 : .765;          // only the center ai
 const world=$('#world'), player=$('#player'), exHint=$('#exHint');
 const ex = { ok:false, on:false, ratio:16/9, x:.5, y:.93, tx:.5, ty:.93, cam:null, target:null, walking:false, raf:0, last:0 };
 $('#worldImg').addEventListener('load', e=>{ ex.ratio=e.target.naturalWidth/e.target.naturalHeight; ex.ok=ex.ratio>1.2; });
-tryImage('assets/player.png', s=>{ player.classList.remove('lantern'); player.innerHTML=`<img src="${s}" alt="">`; });
+
 player.classList.add('lantern'); player.innerHTML='<div class="orb"></div>';   // shown until assets/player.png exists
 SPOTS.forEach(sp=>{ const d=document.createElement('div'); d.className='spot'; d.style.left=sp.x*100+'%'; d.style.top=sp.y*100+'%'; sp.el=d; world.appendChild(d); });
 
@@ -775,8 +776,9 @@ $('#stage').addEventListener('click', e=>{
 function begin(){ look.askGyro(); started=true; $('#tap').remove(); charVid.pause(); charVid.classList.remove('on'); charVid.currentTime=0; sfx.start(); }
 $('#enterBtn').onclick=e=>{ e.stopPropagation();   // dip to black, then the walk-in fades up out of the dark
   const k=$('#dip'); k.classList.add('on'); $('#enterBtn').disabled=true;
-  const rv=$('#roomVid'); rv.muted=false; rv.play().then(()=>{ rv.pause(); rv.currentTime=0; }).catch(()=>{});   // unlock video + sound inside the tap (phones need this)
+  [$('#roomVid'), writeVid].forEach(v=>{ v.muted=false; const p=v.play(); if(p) p.then(()=>{ v.pause(); v.currentTime=0; }).catch(()=>{}); });   // unlock the clips with sound inside the tap (iPhone needs this)
   try{ sfx.start(); }catch(_){}
+  document.querySelectorAll('video.later').forEach(v=>{ v.preload='auto'; v.load(); });   // now fetch the rest of the story's videos
   setTimeout(()=>{ begin(); next.page6=true; show($('#roomVid').readyState>=2 ? 0 : STORY.findIndex(s=>s.form));
     setTimeout(()=>k.classList.remove('on'), 500); }, 900);
 };   // walk into the room first, then the questions   // after the comic: straight to "when were you born?"
@@ -784,7 +786,7 @@ $('#enterBtn').onclick=e=>{ e.stopPropagation();   // dip to black, then the wal
 $('#go').onclick=e=>{
   e.stopPropagation();
   const v=dobValue(); if(!v){ dobCheck(true); $('#dob').focus(); return; }
-  startIncense(()=>{ showReading(v); openSite(); });   // light the incense first, then the reading and the Reasey scene
+  startIncense(()=>{ showReading(v); });   // the player sees their reading and card first; the button opens Reasey   // light the incense first, then the reading and the Reasey scene
 };
 
 
@@ -867,6 +869,12 @@ $('#name').addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.isComposing
 document.querySelectorAll('#form .qBack').forEach((a,k)=>a.onclick=e=>{ e.stopPropagation(); showQ(k); });
 
 /* ---------- Incense offering: waiting loop + អុជធូប button, then the lighting clip ---------- */
+function whenReady(v, go, give_up, ms=6000){   // play as soon as the clip can, instead of skipping it on a slow connection
+  if(v.readyState>=2) return go();
+  let done=false; const ok=()=>{ if(done) return; done=true; go(); };
+  v.addEventListener('loadeddata', ok, {once:true}); if(v.preload!=='auto'){ v.preload='auto'; v.load(); }
+  setTimeout(()=>{ if(!done){ done=true; give_up(); } }, ms);
+}
 function startIncense(done){
   const box=$('#incense'), title=$('#incTitle'), wait=$('#incWait'), light=$('#incLight'), btn=$('#incBtn');
   writeVid.classList.remove('on'); writeVid.pause();
@@ -879,24 +887,22 @@ function startIncense(done){
     setTimeout(()=>{ wait.pause(); light.pause(); $('#incPlant').pause(); $('#incPlant').classList.remove('on'); box.classList.remove('slowout'); },1500); playFate(done); };
   const plant=()=>{   // after the prayer: the hands place the sticks in the urn
     const pl=$('#incPlant'); title.textContent='';
-    if(pl.readyState<2) return setTimeout(finish,600);
-    pl.currentTime=0; pl.classList.add('on'); pl.play().catch(()=>setTimeout(finish,600)); setTimeout(()=>light.classList.remove('on'),600);
+    whenReady(pl, ()=>{ pl.currentTime=0; pl.classList.add('on'); pl.play().catch(()=>setTimeout(finish,600)); setTimeout(()=>light.classList.remove('on'),600);
     pl.ontimeupdate=()=>{ if(pl.duration && pl.currentTime>=pl.duration-1.2) finish(); };   // start the dissolve while the last second still plays
-    pl.onended=finish; setTimeout(finish, 14000);
+    pl.onended=finish; setTimeout(finish, 14000); }, ()=>setTimeout(finish,600));
   };
   btn.textContent=L('អុជធូប','点香');
   btn.onclick=e=>{
     e.stopPropagation(); btn.blur(); btn.classList.add('gone');
     title.textContent=L('ធូបបីសរសៃ ឧទ្ទិសដល់ដូនតា និងអ្នកថែរក្សា…','三炷香，敬献祖先与守护者……');
-    if(light.readyState<2) return setTimeout(finish, 2400);   // lighting clip missing
-    light.currentTime=0; light.classList.add('on'); wait.classList.remove('on');
+    whenReady(light, ()=>{ light.currentTime=0; light.classList.add('on'); wait.classList.remove('on');
     light.onended=()=>{   // hands held in prayer: eyes close to black, wait until the player has prayed
       title.textContent=''; $('#incEyes').classList.add('shut'); box.classList.add('drowsy');   // vision blurs as the eyes close
       setTimeout(()=>{ title.textContent=L('សូមអធិស្ឋានក្នុងចិត្ត…','请在心中默默祈祷……'); btn.textContent=L('អធិស្ឋានរួចហើយ','祈祷完毕'); btn.classList.remove('gone'); }, 2200);
       btn.onclick=e2=>{ e2.stopPropagation(); btn.blur(); btn.classList.add('gone'); title.textContent='';
         plant(); setTimeout(()=>$('#incEyes').classList.remove('shut'), 250); box.classList.replace('drowsy','waking'); setTimeout(()=>box.classList.remove('waking'), 1200); };   // eyes open blurry, then focus   // eyes open on the hands placing the sticks
     };
-    light.play().catch(()=>light.onended());
+    light.play().catch(()=>light.onended()); }, ()=>setTimeout(finish, 2400));
   };
 }
 /* After the incense: he closes his eyes, the tattoo glows, he opens his eyes — then the reading */
