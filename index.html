@@ -229,7 +229,7 @@
   #fateVid { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center top; opacity:0; transition:opacity 1.2s ease; pointer-events:none; }
   #fateVid.on { opacity:1; }
   /* Opening: the camera walks in through the door once, then holds on the table and cloth */
-  #roomVid { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity 1.2s ease; pointer-events:none; }
+  #roomVid { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity 1.8s ease-in-out; pointer-events:none; }
   #roomVid.on { opacity:1; }
   #roomIdle { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .6s ease; pointer-events:none; }
   #roomIdle.on { opacity:1; }
@@ -306,6 +306,8 @@ html,body,*{scrollbar-width:none;-ms-overflow-style:none}
   #form input { text-transform:none !important; }
   #dobHint { min-height:1.6em; margin-top:-2px; text-align:center; font:14px/1.6 'Battambang',serif; color:rgba(248,231,191,.75); }
   #nameHint { min-height:1.6em; margin-top:-2px; text-align:center; font:14px/1.6 'Battambang',serif; color:#ffb08a; }
+  #nameHint.bad::before, #dobHint.bad::before { content:'លោកគ្រូ៖ '; display:block; font-size:11px; letter-spacing:.05em; color:rgba(233,196,106,.75); }
+  #nameHint.bad, #dobHint.bad { color:#f3c9a0; text-shadow:0 0 10px rgba(255,140,60,.35); }
   #nameHint.shake { animation:dobShake .45s ease; }
   #dobHint.bad { color:#ffb08a; font-style:normal; }
   #dobHint.shake { animation:dobShake .45s ease; }
@@ -319,9 +321,12 @@ html,body,*{scrollbar-width:none;-ms-overflow-style:none}
   .ringFx .halo { filter:drop-shadow(0 0 3px rgba(255,200,90,.55)); animation:ringGlow 4s ease-in-out infinite; }
   @keyframes ringGlow { 50% { filter:drop-shadow(0 0 9px rgba(255,210,110,.9)); } }
   @media (prefers-reduced-motion: reduce) { .ringFx .halo, .ringFx .inner, .ringFx .points2 { animation:none; } }
-  .rlogo { width:1.35em; height:1.35em; border-radius:22%; vertical-align:middle; margin-right:.4em; box-shadow:0 2px 8px rgba(0,0,0,.5), 0 0 0 1px rgba(246,198,134,.45); }
+  .rlogo { width:1.7em; height:1.7em; vertical-align:middle; margin-right:.3em; filter:drop-shadow(0 2px 6px rgba(0,0,0,.6)); }
   .brand { display:flex; align-items:center; justify-content:center; }
   #siteBar span { display:inline-flex; align-items:center; }
+  /* empty + focused: hide the hint so the centred cursor never sits on top of it */
+  #form input::placeholder { transition:opacity .25s ease; }
+  #form input:focus::placeholder { opacity:0; }
 </style>
 </head>
 <body>
@@ -382,12 +387,12 @@ html,body,*{scrollbar-width:none;-ms-overflow-style:none}
     <button class="btn" id="incBtn">អុជធូប</button>
   </div>
   <div id="site">
-    <div id="siteBar"><button id="siteBack">‹ ត្រឡប់ក្រោយ</button><span><img class="rlogo" src="assets/reasey-logo.png" alt="Reasey">រាសី</span></div>
+    <div id="siteBar"><button id="siteBack">‹ ត្រឡប់ក្រោយ</button><span><img class="rlogo" src="assets/reasey-logo.svg" alt="Reasey">រាសី</span></div>
     <iframe id="siteFrame" title="Reasey"></iframe>
   </div>
   <div id="tap">
     <section class="hero">
-      <div class="brand"><img class="rlogo" src="assets/reasey-logo.png" alt="Reasey">រាសី</div>
+      <div class="brand"><img class="rlogo" src="assets/reasey-logo.svg" alt="Reasey">រាសី</div>
       <div class="hook">
         <p>«ខ្ញុំដឹងថាអ្នកនឹងមក។»</p>
         <div class="scrollhint">អូសចុះ ដើម្បីអានរឿង<span>⌄</span></div>
@@ -503,12 +508,14 @@ $('#site').addEventListener('pointerdown', e=>e.stopPropagation());
 
 /* When the walk-in ends, a gentle back-and-forth loop keeps the room alive (candles, smoke, slight drift) */
 /* The walk-in ends with every candle blown out. Hold the darkness for a moment, then the fortune teller appears out of it */
-$('#roomVid').addEventListener('ended', ()=>{
-  const v=$('#roomVid'); if(!v.classList.contains('on')) return;
-  v.classList.add('done');   // stays on its last, dark frame
-  const my=gen;
-  setTimeout(()=>{ if(my!==gen) return; const ci=STORY.findIndex(s=>s.char); if(ci>step) showComic([5], ()=>show(ci)); }, 1800);
-});
+const ROOM_DISSOLVE_AT=13.8;   // seconds into the walk-in: after the lights have gone fully out
+function roomToTeller(){
+  const v=$('#roomVid'); if(!v.classList.contains('on') || v._gone) return; v._gone=true;
+  const fi=STORY.findIndex(s=>s.form); if(fi>step){ v.classList.remove('on','done'); show(fi); }   // the room fades out while he fades in, writing
+  setTimeout(()=>{ v.pause(); v._gone=false; }, 2000);
+}
+$('#roomVid').addEventListener('timeupdate', ()=>{ if($('#roomVid').currentTime>=ROOM_DISSOLVE_AT) roomToTeller(); });
+$('#roomVid').addEventListener('ended', roomToTeller);
 
 /* ---------- Comic pages: full-screen manhwa pages, tap to turn ---------- */
 ['1','2','3','4','5','6'].forEach(n=>{ const i=new Image(); i.src='assets/comic/page'+n+'.jpg'; });   // preload so pages appear instantly
@@ -706,7 +713,7 @@ $('#stage').addEventListener('click', e=>{
   next();
 });
 function begin(){ look.askGyro(); started=true; $('#tap').remove(); charVid.pause(); charVid.classList.remove('on'); charVid.currentTime=0; sfx.start(); }
-$('#enterBtn').onclick=e=>{ e.stopPropagation(); begin(); next.page6=true; show(STORY.findIndex(s=>s.form)); };   // after the comic: straight to "when were you born?"
+$('#enterBtn').onclick=e=>{ e.stopPropagation(); begin(); next.page6=true; show($('#roomVid').readyState>=2 ? 0 : STORY.findIndex(s=>s.form)); };   // walk into the room first, then the questions   // after the comic: straight to "when were you born?"
 
 $('#go').onclick=e=>{
   e.stopPropagation();
@@ -735,13 +742,13 @@ function dobValue(){
 }
 function dobScold(){   // the fortune teller points out exactly what is wrong, a little sharply, so the player looks again
   const {d,m,y}=dobParts(), now=new Date(), typed=toLat($('#dob').value).replace(/\D/g,'');
-  if(typed.length<6) return '«ខ្ញុំត្រូវការ ថ្ងៃ ខែ ឆ្នាំ ពេញលេញ… ឧ. ១៥/០៤/១៩៩៥»';
-  if(m<1||m>12) return `«ខែទី${toKh(m)}? មួយឆ្នាំមានតែ ១២ ខែទេ… សូមមើលម្ដងទៀត។»`;
+  if(typed.length<6) return '«ថ្ងៃ ខែ ឆ្នាំ ត្រូវតែគ្រប់ទាំងបី ទើបផ្កាយតម្រៀបជួរបាន… ឧ. ១៥/០៤/១៩៩៥»';
+  if(m<1||m>12) return `«ខែទី${toKh(m)}? មេឃមានតែ ១២ ខែប៉ុណ្ណោះ… កុំលេងសើចជាមួយវាសនា។»`;
   const last=new Date(y||2000, m, 0).getDate();
-  if(d<1||d>last) return `«ខែ${KH_MONTH[m-1]} គ្មានថ្ងៃទី${toKh(d)} ទេ… អ្នកប្រាកដទេ?»`;
-  if(y>now.getFullYear() || new Date(y,m-1,d)>now) return '«អ្នកមិនទាន់កើតផង… ទៀនមិនកុហកទេ។ សូមពិនិត្យឆ្នាំម្ដងទៀត។»';
-  if(y<1900) return `«ឆ្នាំ${toKh(y)}? ចាស់ជាងផ្ទះខ្ញុំទៅទៀត… សូមសរសេរឆ្នាំឲ្យត្រូវ។»`;
-  return '«វាសនាមិនអាចអានពីថ្ងៃខុសបានទេ… សូមពិនិត្យម្ដងទៀត។»';
+  if(d<1||d>last) return `«ខែ${KH_MONTH[m-1]} គ្មានថ្ងៃទី${toKh(d)} ឡើយ… ព្រះចន្ទមិនដែលរះនៅថ្ងៃនោះទេ។»`;
+  if(y>now.getFullYear() || new Date(y,m-1,d)>now) return '«ថ្ងៃនោះមិនទាន់មកដល់ផង… គ្មាននរណាកើតមុនទៀនរបស់ខ្លួនឆេះទេ។»';
+  if(y<1900) return `«ឆ្នាំ${toKh(y)}? នោះជាសម័យដូនតាអ្នកទៅហើយ… សូមប្រាប់ឆ្នាំកំណើតពិត។»`;
+  return '«ទៀនញ័រ… ថ្ងៃនេះមិនត្រឹមត្រូវទេ។ វាសនាមិនអាចអានពីថ្ងៃខុសបានឡើយ។»';
 }
 function dobCheck(force){
   const h=$('#dobHint'), v=dobValue(), typed=toLat($('#dob').value).replace(/\D/g,'');
@@ -772,7 +779,7 @@ function typeHint(el, text){   // types the placeholder out one Khmer letter at 
 }
 function stopHint(el){ clearInterval(el._tw); el._tw=null; const t=el.dataset.hint; if(t) el.placeholder=t; }   // never touch the field while someone types (Khmer keyboards compose letters)
 ['focus','compositionstart','keydown','input','pointerdown'].forEach(ev=>document.getElementById('name').addEventListener(ev, e=>stopHint(e.target)));
-function showQ(i){ qs.forEach((q,k)=>q.classList.toggle('on', k===i)); if(i===1){ const n=$('#name'); typeHint(n, n.dataset.hint||n.placeholder.replace('▏','')); setTimeout(()=>{ stopHint(n); n.focus({preventScroll:true}); }, 1600); } }
+function showQ(i){ qs.forEach((q,k)=>q.classList.toggle('on', k===i)); if(i===1){ const n=$('#name'); typeHint(n, n.dataset.hint||n.placeholder.replace('▏','')); setTimeout(()=>stopHint(n), 1600);   // hint stays visible until the player taps the field } }
 function openForm(){ $('#stage').classList.add('asking'); form.classList.add('on'); showQ(0); }
 document.querySelectorAll('#form .opt').forEach(b=>b.onclick=e=>{
   e.stopPropagation(); who=b.dataset.who; const me=who==='self';
@@ -782,10 +789,10 @@ document.querySelectorAll('#form .opt').forEach(b=>b.onclick=e=>{
   sfx.chime(0.3); showQ(1);
 });
 function nameScold(v){   // the fortune teller notices a missing or odd name
-  if(!v) return '«ខ្ញុំមិនអាចមើលវាសនា ដែលគ្មានឈ្មោះបានទេ… សូមប្រាប់ឈ្មោះមក។»';
-  if(/^[0-9០-៩\s]+$/.test(v)) return '«នោះជាលេខ មិនមែនឈ្មោះទេ… សូមសរសេរឈ្មោះពិត។»';
-  if(!/[\p{L}]/u.test(v)) return '«ឈ្មោះនេះ ទៀនអានមិនចេញទេ… សូមសរសេរម្ដងទៀត។»';
-  if([...new Intl.Segmenter('km',{granularity:'grapheme'}).segment(v)].length<2) return '«ខ្លីពេកហើយ… សូមសរសេរឈ្មោះពេញ។»';
+  if(!v) return '«វិញ្ញាណមិនស្គាល់មនុស្សគ្មានឈ្មោះទេ… ប្រាប់ឈ្មោះអ្នកមក ទើបខ្ញុំហៅវាសនាអ្នកបាន។»';
+  if(/^[0-9០-៩\s]+$/.test(v)) return '«លេខមិនមែនជាឈ្មោះទេ… ផ្កាយហៅអ្នកដោយឈ្មោះ មិនមែនដោយលេខឡើយ។»';
+  if(!/[\p{L}]/u.test(v)) return '«ទៀនញ័រ ពេលខ្ញុំអានឈ្មោះនេះ… សូមសរសេរឈ្មោះពិតរបស់អ្នក។»';
+  if([...new Intl.Segmenter('km',{granularity:'grapheme'}).segment(v)].length<2) return '«ឈ្មោះខ្លីពេក វាសនាលាក់ខ្លួន… សូមប្រាប់ឈ្មោះពេញរបស់អ្នក។»';
   return '';
 }
 function nameShow(msg){ const h=$('#nameHint'); h.textContent=msg; h.className=msg?'bad':''; if(msg){ h.classList.remove('shake'); void h.offsetWidth; h.classList.add('shake'); } }
