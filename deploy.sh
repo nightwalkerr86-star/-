@@ -10,5 +10,5 @@ done
 mkdir -p dist/assets/fonts && cp assets/fonts/*.ttf dist/assets/fonts/ 2>/dev/null || true
 mkdir -p dist/assets/frame && cp assets/frame/*.svg dist/assets/frame/
 mkdir -p dist/assets/zodiac && cp assets/zodiac/*.png dist/assets/zodiac/
-mkdir -p dist/assets/comic && cp assets/comic/page*.jpg dist/assets/comic/
+mkdir -p dist/assets/comic && cp assets/comic/page*.jpg dist/assets/comic/ && mkdir -p dist/assets/comic/zh && cp assets/comic/zh/page*.jpg dist/assets/comic/zh/
 npx --yes wrangler pages deploy dist --project-name pagoda-fortune --branch main --commit-dirty=true
