@@ -366,7 +366,7 @@ html,body,*{scrollbar-width:none;-ms-overflow-style:none}
   <div id="exHint" data-zh="点击地面行走 · 点击光亮查看">ចុចលើកម្រាល ដើម្បីដើរ · ចុចលើពន្លឺ ដើម្បីមើល</div>
   <video id="fateVid" src="assets/fate.mp4" muted playsinline preload="metadata" class="later"></video>
   <video id="writeVid" src="assets/write.mp4" loop playsinline preload="metadata" class="later"></video>
-  <video id="charVid" src="assets/kru-candles.mp4" muted playsinline preload="auto"></video>
+  <video id="charVid" src="assets/kru-candles.mp4" poster="assets/kru-candles-poster.jpg" muted autoplay playsinline webkit-playsinline preload="auto"></video>
   <div id="char"></div>
   <div class="vignette"></div>
   <div id="lookHint" data-zh="‹ 滑动或转动手机，环顾四周 ›">‹ អូស ឬបង្វិលទូរស័ព្ទ ដើម្បីមើលជុំវិញ ›</div>
@@ -608,7 +608,8 @@ function charVidReady(){
   // if the clip finishes loading while his scene is already on screen, bring him in now
   if(started && step>=0 && STORY[step].char && !ex.on && !$('#incense').classList.contains('on')){ charVid.classList.add('on'); charVid.play().catch(()=>{}); $('#char').classList.remove('on'); look.update(); }
 }
-charVid.addEventListener('loadeddata', charVidReady); charVid.addEventListener('canplay', charVidReady);
+charVid.addEventListener('loadeddata', charVidReady); charVid.addEventListener('canplay', charVidReady); charVid.addEventListener('playing', charVidReady);
+if(!started){ charVid.muted=true; charVid.classList.add('on'); const p=charVid.play(); if(p) p.catch(()=>{}); if(charVid.readyState>=2) charVidReady(); }   // phones don't preload: start it now (muted autoplay is allowed); the poster shows meanwhile
 if(charVid.readyState>=2) charVidReady();
 charVid.addEventListener('error', ()=>{ charVidOK=false; });
 const CHAR_LOOP_START=0;   // when the video ends, start again from the beginning   // the candles-light reveal plays once (0–3.5 s), then the rest loops   // seconds: the first 1.4s (he raises the beads) play once, the rest loops
@@ -732,7 +733,7 @@ const look = {
   active(){ return ['bgHall','bgAltar'].find(id=>$('#'+id).classList.contains('on')); },
   wide(id){ return id && $('#'+id).classList.contains('wide') && !$('#roomVid').classList.contains('on') && !$('#charVid').classList.contains('on') && !$('#writeVid').classList.contains('on') && !$('#fateVid').classList.contains('on') && !ex.on; },
   apply(id){ $('#'+id).style.backgroundPosition=`${this.x[id]}% center`; },
-  update(){ const id=this.active(); $('#lookHint').classList.toggle('on', started && this.wide(id) && !this.used); },
+  update(){ const id=this.active(); $('#lookHint').classList.remove('on'); },
   // turning the phone left/right turns the view (compass heading); dragging still works and takes over while touching
   gyroOn:false, a0:null, x0:50,
   askGyro(){ try{ if(window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission==='function') DeviceOrientationEvent.requestPermission().catch(()=>{}); }catch(e){} },
@@ -779,7 +780,7 @@ $('#stage').addEventListener('click', e=>{
   const s=STORY[step]; if(s.choices||s.form||e.target.closest('#reading')) return;
   next();
 });
-function begin(){ look.askGyro(); started=true; $('#tap').remove(); charVid.pause(); charVid.classList.remove('on'); charVid.currentTime=0; sfx.start(); }
+function begin(){ started=true; $('#tap').remove(); charVid.pause(); charVid.classList.remove('on'); charVid.currentTime=0; sfx.start(); }
 $('#enterBtn').onclick=e=>{ e.stopPropagation();   // dip to black, then the walk-in fades up out of the dark
   const k=$('#dip'); k.classList.add('on'); $('#enterBtn').disabled=true;
   [$('#roomVid'), writeVid].forEach(v=>{ v.muted=false; const p=v.play(); if(p) p.then(()=>{ v.pause(); v.currentTime=0; }).catch(()=>{}); });   // unlock the clips with sound inside the tap (iPhone needs this)
