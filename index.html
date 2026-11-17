@@ -284,10 +284,10 @@ html,body,*{scrollbar-width:none;-ms-overflow-style:none}
   /* Praying: eyelids close from top and bottom into black, then open again */
   #incEyes { position:absolute; inset:0; z-index:1; pointer-events:none; background:rgba(20,4,2,0); transition:background 2.8s ease; }
   #incEyes.shut { background:rgba(20,4,2,.55); transition:background 2s ease-in .6s; }   /* a little warm light still comes through closed eyelids */
-  #incEyes::before, #incEyes::after { content:''; position:absolute; left:-10%; right:-10%; height:62%; transition:transform 3s cubic-bezier(.4,0,.3,1); }
+  #incEyes::before, #incEyes::after { content:''; position:absolute; left:0; right:0; height:62%; transition:transform 3s cubic-bezier(.4,0,.3,1); }
   #incEyes.shut::before, #incEyes.shut::after { transition-duration:2s; transition-timing-function:cubic-bezier(.45,0,.25,1); }
-  #incEyes::before { top:0; transform:translateY(-100%); background:linear-gradient(#0d0403 0 55%, rgba(13,4,3,.85) 72%, rgba(13,4,3,0)); border-radius:0 0 50% 50% / 0 0 30% 30%; }
-  #incEyes::after { bottom:0; transform:translateY(100%); background:linear-gradient(0deg, #0d0403 0 55%, rgba(13,4,3,.85) 72%, rgba(13,4,3,0)); border-radius:50% 50% 0 0 / 30% 30% 0 0; }
+  #incEyes::before { top:0; transform:translateY(-100%); background:linear-gradient(#0d0403 0 55%, rgba(13,4,3,.85) 72%, rgba(13,4,3,0)); }
+  #incEyes::after { bottom:0; transform:translateY(100%); background:linear-gradient(0deg, #0d0403 0 55%, rgba(13,4,3,.85) 72%, rgba(13,4,3,0)); }
   #incEyes.shut::before, #incEyes.shut::after { transform:translateY(0); }
   #incense.slowout { transition:opacity 1.2s ease-in-out, visibility 0s 1.2s; }
   #incense.slowout ~ #fateVid, #fateVid.on { transition:opacity 1s ease-in-out; }
@@ -305,7 +305,11 @@ html,body,*{scrollbar-width:none;-ms-overflow-style:none}
     -webkit-text-fill-color:#f8e7bf !important; -webkit-box-shadow:0 0 0 1000px transparent inset !important; transition:background-color 99999s ease 0s; caret-color:var(--gold); }
   #form input { text-transform:none !important; }
   #dobHint { min-height:1.6em; margin-top:-2px; text-align:center; font:14px/1.6 'Battambang',serif; color:rgba(248,231,191,.75); }
-  #dobHint.bad { color:#ffb08a; }
+  #nameHint { min-height:1.6em; margin-top:-2px; text-align:center; font:14px/1.6 'Battambang',serif; color:#ffb08a; }
+  #nameHint.shake { animation:dobShake .45s ease; }
+  #dobHint.bad { color:#ffb08a; font-style:normal; }
+  #dobHint.shake { animation:dobShake .45s ease; }
+  @keyframes dobShake { 20%,60% { transform:translateX(-6px); } 40%,80% { transform:translateX(6px); } }
   #dobHint.ok { color:var(--gold); }
   #form #dob { letter-spacing:.06em; font-family:'Battambang',serif !important; }
   /* Animated light on the card's gold ring (the card itself is a flat image) */
@@ -315,6 +319,9 @@ html,body,*{scrollbar-width:none;-ms-overflow-style:none}
   .ringFx .halo { filter:drop-shadow(0 0 3px rgba(255,200,90,.55)); animation:ringGlow 4s ease-in-out infinite; }
   @keyframes ringGlow { 50% { filter:drop-shadow(0 0 9px rgba(255,210,110,.9)); } }
   @media (prefers-reduced-motion: reduce) { .ringFx .halo, .ringFx .inner, .ringFx .points2 { animation:none; } }
+  .rlogo { width:1.35em; height:1.35em; border-radius:22%; vertical-align:middle; margin-right:.4em; box-shadow:0 2px 8px rgba(0,0,0,.5), 0 0 0 1px rgba(246,198,134,.45); }
+  .brand { display:flex; align-items:center; justify-content:center; }
+  #siteBar span { display:inline-flex; align-items:center; }
 </style>
 </head>
 <body>
@@ -352,6 +359,7 @@ html,body,*{scrollbar-width:none;-ms-overflow-style:none}
     <div class="q">
       <h4 id="qName"></h4>
       <input type="text" id="name" name="fortune-name" maxlength="30" enterkeyhint="next" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other">
+      <div id="nameHint"></div>
       <button class="btn" id="nameNext">បន្ត</button>
       <a class="qBack">‹ ថយក្រោយ</a>
     </div>
@@ -374,12 +382,12 @@ html,body,*{scrollbar-width:none;-ms-overflow-style:none}
     <button class="btn" id="incBtn">អុជធូប</button>
   </div>
   <div id="site">
-    <div id="siteBar"><button id="siteBack">‹ ត្រឡប់ក្រោយ</button><span>រាសី</span></div>
+    <div id="siteBar"><button id="siteBack">‹ ត្រឡប់ក្រោយ</button><span><img class="rlogo" src="assets/reasey-logo.png" alt="Reasey">រាសី</span></div>
     <iframe id="siteFrame" title="Reasey"></iframe>
   </div>
   <div id="tap">
     <section class="hero">
-      <div class="brand">រាសី</div>
+      <div class="brand"><img class="rlogo" src="assets/reasey-logo.png" alt="Reasey">រាសី</div>
       <div class="hook">
         <p>«ខ្ញុំដឹងថាអ្នកនឹងមក។»</p>
         <div class="scrollhint">អូសចុះ ដើម្បីអានរឿង<span>⌄</span></div>
@@ -725,24 +733,35 @@ function dobValue(){
   const dt=new Date(y,m-1,d); if(dt.getMonth()!==m-1 || dt>now) return '';   // no 31 កុម្ភៈ, no future dates
   return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
 }
+function dobScold(){   // the fortune teller points out exactly what is wrong, a little sharply, so the player looks again
+  const {d,m,y}=dobParts(), now=new Date(), typed=toLat($('#dob').value).replace(/\D/g,'');
+  if(typed.length<6) return '«ខ្ញុំត្រូវការ ថ្ងៃ ខែ ឆ្នាំ ពេញលេញ… ឧ. ១៥/០៤/១៩៩៥»';
+  if(m<1||m>12) return `«ខែទី${toKh(m)}? មួយឆ្នាំមានតែ ១២ ខែទេ… សូមមើលម្ដងទៀត។»`;
+  const last=new Date(y||2000, m, 0).getDate();
+  if(d<1||d>last) return `«ខែ${KH_MONTH[m-1]} គ្មានថ្ងៃទី${toKh(d)} ទេ… អ្នកប្រាកដទេ?»`;
+  if(y>now.getFullYear() || new Date(y,m-1,d)>now) return '«អ្នកមិនទាន់កើតផង… ទៀនមិនកុហកទេ។ សូមពិនិត្យឆ្នាំម្ដងទៀត។»';
+  if(y<1900) return `«ឆ្នាំ${toKh(y)}? ចាស់ជាងផ្ទះខ្ញុំទៅទៀត… សូមសរសេរឆ្នាំឲ្យត្រូវ។»`;
+  return '«វាសនាមិនអាចអានពីថ្ងៃខុសបានទេ… សូមពិនិត្យម្ដងទៀត។»';
+}
 function dobCheck(force){
   const h=$('#dobHint'), v=dobValue(), typed=toLat($('#dob').value).replace(/\D/g,'');
   if(v){ const [y,m,d]=v.split('-').map(Number); h.textContent=`ថ្ងៃទី${toKh(d)} ខែ${KH_MONTH[m-1]} ឆ្នាំ${toKh(y)}`; h.className='ok'; }
-  else if(force || typed.length>=8){ h.textContent='សូមសរសេរ ថ្ងៃ/ខែ/ឆ្នាំ ឲ្យត្រឹមត្រូវ ឧ. ១៥/០៤/១៩៩៥'; h.className='bad'; }
+  else if(force || typed.length>=8){ h.textContent=dobScold(); h.className='bad'; h.classList.remove('shake'); void h.offsetWidth; h.classList.add('shake'); }
   else { h.textContent=''; h.className=''; }
 }
 $('#dob').addEventListener('input', e=>{   // auto-format as they type: Khmer digits and slashes
-  const el=e.target; if(e.inputType && e.inputType.startsWith('delete')) { dobCheck(); return; }
+  const el=e.target; if(e.isComposing) return; if(e.inputType && e.inputType.startsWith('delete')) { dobCheck(); return; }
   const raw=toLat(el.value), parts=raw.split(/[^0-9]+/);   // a separator after one digit means "pad it": 4/ → 04/
   const n=parts.map((g,i)=> i<parts.length-1 && i<2 && g.length===1 ? '0'+g : g).join('').slice(0,8);
   let out=n.slice(0,2); if(n.length>2) out+='/'+n.slice(2,4); if(n.length>4) out+='/'+n.slice(4);
   if(n.length===2||n.length===4) out+='/';
   el.value=toKh(out); dobCheck();
 });
+$('#dob').addEventListener('compositionend', e=>e.target.dispatchEvent(new Event('input')));
 $('#dob').addEventListener('blur', ()=>{   // tidy up on leave: pad and fix two-digit years
   const v=dobValue(); if(v){ const [y,m,d]=v.split('-'); $('#dob').value=toKh(`${d}/${m}/${y}`); } dobCheck();
 });
-$('#dob').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); $('#go').click(); } });
+$('#dob').addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.isComposing){ e.preventDefault(); $('#go').click(); } });
 /* ---------- Questions, one per screen: whose fate → name → birth date ---------- */
 const WHO={ self:'', partner:'គូស្នេហ៍', family:'គ្រួសារ', friend:'មិត្តភក្តិ' }; let who='self';
 const qs=[...document.querySelectorAll('#form .q')];
@@ -751,7 +770,9 @@ function typeHint(el, text){   // types the placeholder out one Khmer letter at 
   el._tw=setInterval(()=>{ if(el.value){ el.placeholder=text; clearInterval(el._tw); return; }
     if(k<g.length){ k++; el.placeholder=g.slice(0,k).join('')+'▏'; } else { on=!on; el.placeholder=text+(on?'▏':' '); } }, 90);
 }
-function showQ(i){ qs.forEach((q,k)=>q.classList.toggle('on', k===i)); if(i===1){ typeHint($('#name'), $('#name').dataset.hint||$('#name').placeholder.replace('▏','')); setTimeout(()=>$('#name').focus({preventScroll:true}), 350); } }
+function stopHint(el){ clearInterval(el._tw); el._tw=null; const t=el.dataset.hint; if(t) el.placeholder=t; }   // never touch the field while someone types (Khmer keyboards compose letters)
+['focus','compositionstart','keydown','input','pointerdown'].forEach(ev=>document.getElementById('name').addEventListener(ev, e=>stopHint(e.target)));
+function showQ(i){ qs.forEach((q,k)=>q.classList.toggle('on', k===i)); if(i===1){ const n=$('#name'); typeHint(n, n.dataset.hint||n.placeholder.replace('▏','')); setTimeout(()=>{ stopHint(n); n.focus({preventScroll:true}); }, 1600); } }
 function openForm(){ $('#stage').classList.add('asking'); form.classList.add('on'); showQ(0); }
 document.querySelectorAll('#form .opt').forEach(b=>b.onclick=e=>{
   e.stopPropagation(); who=b.dataset.who; const me=who==='self';
@@ -760,8 +781,18 @@ document.querySelectorAll('#form .opt').forEach(b=>b.onclick=e=>{
   $('#name').dataset.hint = me ? 'ឈ្មោះរបស់អ្នក' : 'ឈ្មោះរបស់គាត់'; $('#name').placeholder='';
   sfx.chime(0.3); showQ(1);
 });
-$('#nameNext').onclick=e=>{ e.stopPropagation(); $('#name').blur(); sfx.chime(0.3); showQ(2); };
-$('#name').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); $('#nameNext').click(); } });
+function nameScold(v){   // the fortune teller notices a missing or odd name
+  if(!v) return '«ខ្ញុំមិនអាចមើលវាសនា ដែលគ្មានឈ្មោះបានទេ… សូមប្រាប់ឈ្មោះមក។»';
+  if(/^[0-9០-៩\s]+$/.test(v)) return '«នោះជាលេខ មិនមែនឈ្មោះទេ… សូមសរសេរឈ្មោះពិត។»';
+  if(!/[\p{L}]/u.test(v)) return '«ឈ្មោះនេះ ទៀនអានមិនចេញទេ… សូមសរសេរម្ដងទៀត។»';
+  if([...new Intl.Segmenter('km',{granularity:'grapheme'}).segment(v)].length<2) return '«ខ្លីពេកហើយ… សូមសរសេរឈ្មោះពេញ។»';
+  return '';
+}
+function nameShow(msg){ const h=$('#nameHint'); h.textContent=msg; h.className=msg?'bad':''; if(msg){ h.classList.remove('shake'); void h.offsetWidth; h.classList.add('shake'); } }
+$('#name').addEventListener('input', ()=>{ if($('#nameHint').textContent) nameShow(nameScold($('#name').value.trim())); });
+$('#nameNext').onclick=e=>{ e.stopPropagation(); const msg=nameScold($('#name').value.trim()); if(msg){ nameShow(msg); $('#name').focus(); return; }
+  nameShow(''); $('#name').blur(); sfx.chime(0.3); showQ(2); };
+$('#name').addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.isComposing){ e.preventDefault(); $('#nameNext').click(); } });
 document.querySelectorAll('#form .qBack').forEach((a,k)=>a.onclick=e=>{ e.stopPropagation(); showQ(k); });
 
 /* ---------- Incense offering: waiting loop + អុជធូប button, then the lighting clip ---------- */
