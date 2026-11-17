@@ -343,6 +343,12 @@ html,body,*{scrollbar-width:none;-ms-overflow-style:none}
     #langSw { top:calc(12px + env(safe-area-inset-top)); right:8px; padding:2px; }
     #langSw button { padding:2px 7px; font-size:11px; }
   }
+  /* Caption box in the same gold ornament frame as the reading text */
+  #line.box { padding:20px 26px !important; border:2.5px solid #F6C686 !important; border-radius:12px !important;
+    background:url('assets/frame/tl.svg') 3px 3px / 30px 30px no-repeat, url('assets/frame/tr.svg') calc(100% - 3px) 3px / 30px 30px no-repeat,
+      url('assets/frame/bl.svg') 3px calc(100% - 3px) / 30px 30px no-repeat, url('assets/frame/br.svg') calc(100% - 3px) calc(100% - 3px) / 30px 30px no-repeat,
+      linear-gradient(180deg, rgba(92,20,18,.88), rgba(40,8,8,.92)) !important; }
+  #line.box::after { content:''; position:absolute; inset:7px; border:1px solid rgba(246,198,134,.55); border-radius:7px; pointer-events:none; }
 </style>
 </head>
 <body>
