@@ -1,0 +1,25 @@
+# build output and local leftovers
+dist/
+renders/
+Reasey-Preview.zip
+index.before-*.html
+.DS_Store
+# old clips and images the game no longer uses
+assets/achar-old.png
+assets/altar-old.jpg
+assets/altar-vertical.jpg
+assets/altar.jpg
+assets/btn-frame.png
+assets/fate-old.mp4
+assets/hall.jpg
+assets/kru-bracelet.mp4
+assets/kru-loop.mp4
+assets/kru-loop2.mp4
+assets/kru-original.mp4
+assets/kru-previous.mp4
+assets/kru-reveal.mp4
+assets/kru-reveal2.mp4
+assets/kru-two-bracelets.mp4
+assets/kru.mp4
+assets/room-enter-slow.mp4
+assets/room-enter.mp4
