@@ -609,6 +609,12 @@ function charVidReady(){
   if(started && step>=0 && STORY[step].char && !ex.on && !$('#incense').classList.contains('on')){ charVid.classList.add('on'); charVid.play().catch(()=>{}); $('#char').classList.remove('on'); look.update(); }
 }
 charVid.addEventListener('loadeddata', charVidReady); charVid.addEventListener('canplay', charVidReady); charVid.addEventListener('playing', charVidReady);
+/* Landing: the video belongs to the opening screen only — it fades out as the comic scrolls in, and back if they scroll up */
+document.getElementById('tap').addEventListener('scroll', e=>{
+  if(started) return; const t=e.target, h=t.querySelector('.hero')?.offsetHeight||innerHeight;
+  const k=Math.max(0, Math.min(1, 1 - t.scrollTop/(h*0.6)));
+  charVid.style.opacity=k; if(k===0){ if(!charVid.paused) charVid.pause(); } else if(charVid.paused) charVid.play().catch(()=>{});
+}, {passive:true});
 if(!started){ charVid.muted=true; charVid.classList.add('on'); const p=charVid.play(); if(p) p.catch(()=>{}); if(charVid.readyState>=2) charVidReady(); }   // phones don't preload: start it now (muted autoplay is allowed); the poster shows meanwhile
 if(charVid.readyState>=2) charVidReady();
 charVid.addEventListener('error', ()=>{ charVidOK=false; });
@@ -780,7 +786,7 @@ $('#stage').addEventListener('click', e=>{
   const s=STORY[step]; if(s.choices||s.form||e.target.closest('#reading')) return;
   next();
 });
-function begin(){ started=true; $('#tap').remove(); charVid.pause(); charVid.classList.remove('on'); charVid.currentTime=0; sfx.start(); }
+function begin(){ started=true; charVid.style.opacity=''; $('#tap').remove(); charVid.pause(); charVid.classList.remove('on'); charVid.currentTime=0; sfx.start(); }
 $('#enterBtn').onclick=e=>{ e.stopPropagation();   // dip to black, then the walk-in fades up out of the dark
   const k=$('#dip'); k.classList.add('on'); $('#enterBtn').disabled=true;
   [$('#roomVid'), writeVid].forEach(v=>{ v.muted=false; const p=v.play(); if(p) p.then(()=>{ v.pause(); v.currentTime=0; }).catch(()=>{}); });   // unlock the clips with sound inside the tap (iPhone needs this)
