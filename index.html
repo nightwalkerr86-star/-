@@ -779,7 +779,7 @@ function typeHint(el, text){   // types the placeholder out one Khmer letter at 
 }
 function stopHint(el){ clearInterval(el._tw); el._tw=null; const t=el.dataset.hint; if(t) el.placeholder=t; }   // never touch the field while someone types (Khmer keyboards compose letters)
 ['focus','compositionstart','keydown','input','pointerdown'].forEach(ev=>document.getElementById('name').addEventListener(ev, e=>stopHint(e.target)));
-function showQ(i){ qs.forEach((q,k)=>q.classList.toggle('on', k===i)); if(i===1){ const n=$('#name'); typeHint(n, n.dataset.hint||n.placeholder.replace('▏','')); setTimeout(()=>stopHint(n), 1600);   // hint stays visible until the player taps the field } }
+function showQ(i){ qs.forEach((q,k)=>q.classList.toggle('on', k===i)); if(i===1){ const n=$('#name'); typeHint(n, n.dataset.hint||n.placeholder.replace('▏','')); setTimeout(()=>stopHint(n), 1600); } }   // hint stays visible until the player taps the field
 function openForm(){ $('#stage').classList.add('asking'); form.classList.add('on'); showQ(0); }
 document.querySelectorAll('#form .opt').forEach(b=>b.onclick=e=>{
   e.stopPropagation(); who=b.dataset.who; const me=who==='self';
