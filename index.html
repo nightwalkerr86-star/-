@@ -339,6 +339,10 @@ html,body,*{scrollbar-width:none;-ms-overflow-style:none}
   #langSw button { all:unset; cursor:pointer; padding:4px 11px; border-radius:16px; font:13px/1.4 'Battambang','Noto Sans SC',sans-serif; color:rgba(248,231,191,.75); }
   html[lang] #langSw button[data-l=km], html[lang] #langLink.km { font-family:'Battambang',sans-serif !important; }
   #langSw button.on { background:linear-gradient(180deg,#f6c686,#c98f3a); color:#2a0606; font-weight:700; }
+  @media (max-width:379px){   /* small phones: keep the language switch clear of the title */
+    #langSw { top:calc(12px + env(safe-area-inset-top)); right:8px; padding:2px; }
+    #langSw button { padding:2px 7px; font-size:11px; }
+  }
 </style>
 </head>
 <body>
