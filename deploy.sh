@@ -8,6 +8,7 @@ for f in room-pano.jpg room.jpg room-dark.mp4 kru-candles.mp4 kru-candles-poster
   if [ -f "assets/$f" ]; then cp "assets/$f" dist/assets/; fi
 done
 mkdir -p dist/assets/fonts && cp assets/fonts/*.ttf dist/assets/fonts/ 2>/dev/null || true
+mkdir -p dist/assets/icons && cp assets/icons/*.png dist/assets/icons/
 mkdir -p dist/assets/frame && cp assets/frame/*.svg dist/assets/frame/
 mkdir -p dist/assets/zodiac && cp assets/zodiac/*.png dist/assets/zodiac/
 mkdir -p dist/assets/comic && cp assets/comic/page*.jpg dist/assets/comic/ && mkdir -p dist/assets/comic/zh && cp assets/comic/zh/page*.jpg dist/assets/comic/zh/

@@ -399,6 +399,15 @@ html,body,*{scrollbar-width:none;-ms-overflow-style:none}
   #reading .rframe ul.avoid { list-style:none; margin:6px 0 4px; padding:0; }
   #reading .rframe ul.avoid li { position:relative; padding:4px 0 4px 26px; font-family:'Battambang','Noto Serif SC',serif; font-size:16px; line-height:1.7; color:#f3dcc0; }
   #reading .rframe ul.avoid li::before { content:''; position:absolute; left:2px; top:.55em; width:16px; height:16px; background:url('assets/bullet.png') center / contain no-repeat; filter:drop-shadow(0 1px 2px rgba(0,0,0,.5)); }
+  /* Section icons beside the reading headings */
+  #reading .rframe h3 { display:flex; align-items:center; gap:9px; margin-top:22px; }
+  #reading .rframe h3:first-child { margin-top:0; }
+  #reading .rframe .hIcon { width:30px; height:30px; flex:none; object-fit:contain; filter:drop-shadow(0 2px 4px rgba(0,0,0,.55)); }
+  /* Reading section headings in carved Khmer display lettering */
+  #reading .rframe h3 { font-family:'Moul',serif !important; font-weight:400 !important; font-size:15px !important; line-height:1.9 !important; letter-spacing:.01em !important;
+    color:#f6c686; text-shadow:0 1px 0 rgba(0,0,0,.6), 0 2px 8px rgba(0,0,0,.45); }
+  #reading .rframe h3.warn { color:#f0a08a; }
+  html[lang^=zh] #reading .rframe h3 { font-family:'Noto Serif SC',serif !important; font-weight:900 !important; font-size:17px !important; letter-spacing:.08em !important; }
 </style>
 </head>
 <body>
@@ -1172,24 +1181,12 @@ async function shareCard(z){
 }
 
 /* Keep the eyes-reveal clip alive behind both fresh and restored readings. */
-function startReadingVideo(){
+function startReadingVideo(){   // behind the reading: hold on the last frame (his gold and red eyes open), never loop the prayer again
   const video=$('#fateVid');
-  video.onended=null; // The one-time story completion callback must not repeat.
-  video.muted=true;
-  video.loop=true;
-  video.playsInline=true;
-  video.classList.add('on');
-  if(video.ended){ try{ video.currentTime=0; }catch(_){} }
-  video.play().catch(()=>{
-    // Mobile browsers may require a gesture when restoring a saved result.
-    const retry=()=>{
-      document.removeEventListener('pointerdown', retry);
-      document.removeEventListener('keydown', retry);
-      if($('#reading').classList.contains('on')) video.play().catch(()=>{});
-    };
-    document.addEventListener('pointerdown', retry, {once:true});
-    document.addEventListener('keydown', retry, {once:true});
-  });
+  video.onended=null; video.loop=false; video.muted=true; video.playsInline=true;
+  video.pause(); video.classList.add('on');
+  const hold=()=>{ try{ video.currentTime=Math.max(0, (video.duration||6)-0.05); }catch(_){} video.pause(); };
+  if(video.readyState>=1) hold(); else video.addEventListener('loadedmetadata', hold, {once:true});
 }
 
 /* The other side of the reading: warnings and things to avoid (Sunday … Saturday, then rat … pig) */
@@ -1263,14 +1260,14 @@ function showReading(v){
       <svg class="ringFx" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"> <g class="halo"><path d="M248.301 150.301C248.301 204.425 204.425 248.301 150.301 248.301C96.1769 248.301 52.3008 204.425 52.3008 150.301C52.3008 96.1769 96.1769 52.3008 150.301 52.3008C204.425 52.3008 248.301 96.1769 248.301 150.301Z" stroke-width="6" stroke="#A56B0A"/> <path d="M248.301 150.301C248.301 204.425 204.425 248.301 150.301 248.301C96.1769 248.301 52.3008 204.425 52.3008 150.301C52.3008 96.1769 96.1769 52.3008 150.301 52.3008C204.425 52.3008 248.301 96.1769 248.301 150.301Z" stroke-width="4.2" stroke="url(#rg0)"/> <g class="inner"><path d="M242.301 150.301C242.301 201.111 201.111 242.301 150.301 242.301C99.4906 242.301 58.3008 201.111 58.3008 150.301C58.3008 99.4906 99.4906 58.3008 150.301 58.3008C201.111 58.3008 242.301 99.4906 242.301 150.301Z" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="0.1 6.2" stroke="url(#rg1)"/></g> <path d="M250.301 150.301C250.301 205.529 205.529 250.301 150.301 250.301C95.0723 250.301 50.3008 205.529 50.3008 150.301C50.3008 95.0723 95.0723 50.3008 150.301 50.3008C205.529 50.3008 250.301 95.0723 250.301 150.301Z" stroke-width="0.65" stroke="#FFF0AD"/> </g><g class="points2"><g transform="rotate(45 150.3 150.3)"><path d="M150.3 60.7008C141.2 56.5008 141.2 50.2008 145.4 45.3008C145.4 50.9008 148.9 52.3008 150.3 55.8008C151.7 52.3008 155.2 50.9008 155.2 45.3008C159.4 50.2008 159.4 56.5008 150.3 60.7008Z" fill="url(#paint2_linear_151_1125_r)" stroke-width="0.63" stroke-linejoin="round" stroke="#AE6B05"/> <path d="M150.299 39C148.899 43.9 143.999 46.7 145.399 51.6C146.099 55.1 148.899 57.2 150.299 58.6C151.699 57.2 154.499 55.1 155.199 51.6C156.599 46.7 151.699 43.9 150.299 39Z" fill="url(#paint3_linear_151_1125_r)" stroke-width="0.63" stroke-linejoin="round" stroke="#AE6B05"/> <path d="M150.299 45.3008C146.799 50.2008 147.499 53.0008 150.299 55.8008C153.099 53.0008 153.799 50.2008 150.299 45.3008Z" stroke-width="0.455" stroke-linejoin="round" stroke="#FFF1A4"/> <path d="M150.301 239.901C159.401 244.101 159.401 250.401 155.201 255.301C155.201 249.701 151.701 248.301 150.301 244.801C148.901 248.301 145.401 249.701 145.401 255.301C141.201 250.401 141.201 244.101 150.301 239.901Z" fill="url(#paint4_linear_151_1125_r)" stroke-width="0.63" stroke-linejoin="round" stroke="#AE6B05"/> <path d="M150.302 261.602C151.702 256.702 156.602 253.902 155.202 249.002C154.502 245.502 151.702 243.402 150.302 242.002C148.902 243.402 146.102 245.502 145.402 249.002C144.002 253.902 148.902 256.702 150.302 261.602Z" fill="url(#paint5_linear_151_1125_r)" stroke-width="0.63" stroke-linejoin="round" stroke="#AE6B05"/> <path d="M150.302 255.301C153.802 250.401 153.102 247.601 150.302 244.801C147.502 247.601 146.802 250.401 150.302 255.301Z" stroke-width="0.455" stroke-linejoin="round" stroke="#FFF1A4"/> <path d="M60.7008 150.301C56.5008 159.401 50.2008 159.401 45.3008 155.201C50.9008 155.201 52.3008 151.701 55.8008 150.301C52.3008 148.901 50.9008 145.401 45.3008 145.401C50.2008 141.201 56.5008 141.201 60.7008 150.301Z" fill="url(#paint6_linear_151_1125_r)" stroke-width="0.63" stroke-linejoin="round" stroke="#AE6B05"/> <path d="M39 150.302C43.9 151.702 46.7 156.602 51.6 155.202C55.1 154.502 57.2 151.702 58.6 150.302C57.2 148.902 55.1 146.102 51.6 145.402C46.7 144.002 43.9 148.902 39 150.302Z" fill="url(#paint7_linear_151_1125_r)" stroke-width="0.63" stroke-linejoin="round" stroke="#AE6B05"/> <path d="M45.3008 150.302C50.2008 153.802 53.0008 153.102 55.8008 150.302C53.0008 147.502 50.2008 146.802 45.3008 150.302Z" stroke-width="0.455" stroke-linejoin="round" stroke="#FFF1A4"/> <path d="M239.901 150.3C244.101 141.2 250.401 141.2 255.301 145.4C249.701 145.4 248.301 148.9 244.801 150.3C248.301 151.7 249.701 155.2 255.301 155.2C250.401 159.4 244.101 159.4 239.901 150.3Z" fill="url(#paint8_linear_151_1125_r)" stroke-width="0.63" stroke-linejoin="round" stroke="#AE6B05"/> <path d="M261.602 150.299C256.702 148.899 253.902 143.999 249.002 145.399C245.502 146.099 243.402 148.899 242.002 150.299C243.402 151.699 245.502 154.499 249.002 155.199C253.902 156.599 256.702 151.699 261.602 150.299Z" fill="url(#paint9_linear_151_1125_r)" stroke-width="0.63" stroke-linejoin="round" stroke="#AE6B05"/> <path d="M255.301 150.299C250.401 146.799 247.601 147.499 244.801 150.299C247.601 153.099 250.401 153.799 255.301 150.299Z" stroke-width="0.455" stroke-linejoin="round" stroke="#FFF1A4"/> </g></g><defs> <linearGradient id="rg0" x1="7.30078" y1="18.8008" x2="7.30078" y2="278.801" gradientUnits="userSpaceOnUse"> <stop stop-color="#FFF1B1"/> <stop offset="0.12" stop-color="#FFD350"/> <stop offset="0.28" stop-color="#B97808"/> <stop offset="0.45" stop-color="#FFDF68"/> <stop offset="0.62" stop-color="#FFF1A1"/> <stop offset="0.82" stop-color="#CA890C"/> <stop offset="1" stop-color="#FFE47C"/> </linearGradient> <linearGradient id="rg1" x1="7.30078" y1="18.8008" x2="7.30078" y2="278.801" gradientUnits="userSpaceOnUse"> <stop stop-color="#FFF1B1"/> <stop offset="0.12" stop-color="#FFD350"/> <stop offset="0.28" stop-color="#B97808"/> <stop offset="0.45" stop-color="#FFDF68"/> <stop offset="0.62" stop-color="#FFF1A1"/> <stop offset="0.82" stop-color="#CA890C"/> <stop offset="1" stop-color="#FFE47C"/> </linearGradient> <linearGradient id="paint2_linear_151_1125_r" x1="144" y1="38.3008" x2="158" y2="60.7008" gradientUnits="userSpaceOnUse"> <stop stop-color="#FFF3B5"/> <stop offset="0.45" stop-color="#FFD34C"/> <stop offset="1" stop-color="#C17E0A"/> </linearGradient> <linearGradient id="paint3_linear_151_1125_r" x1="143.999" y1="38.3" x2="157.999" y2="60.7" gradientUnits="userSpaceOnUse"> <stop stop-color="#FFF3B5"/> <stop offset="0.45" stop-color="#FFD34C"/> <stop offset="1" stop-color="#C17E0A"/> </linearGradient> <linearGradient id="paint4_linear_151_1125_r" x1="156.601" y1="262.301" x2="142.601" y2="239.901" gradientUnits="userSpaceOnUse"> <stop stop-color="#FFF3B5"/> <stop offset="0.45" stop-color="#FFD34C"/> <stop offset="1" stop-color="#C17E0A"/> </linearGradient> <linearGradient id="paint5_linear_151_1125_r" x1="156.602" y1="262.302" x2="142.602" y2="239.902" gradientUnits="userSpaceOnUse"> <stop stop-color="#FFF3B5"/> <stop offset="0.45" stop-color="#FFD34C"/> <stop offset="1" stop-color="#C17E0A"/> </linearGradient> <linearGradient id="paint6_linear_151_1125_r" x1="38.3008" y1="156.601" x2="60.7008" y2="142.601" gradientUnits="userSpaceOnUse"> <stop stop-color="#FFF3B5"/> <stop offset="0.45" stop-color="#FFD34C"/> <stop offset="1" stop-color="#C17E0A"/> </linearGradient> <linearGradient id="paint7_linear_151_1125_r" x1="38.3" y1="156.602" x2="60.7" y2="142.602" gradientUnits="userSpaceOnUse"> <stop stop-color="#FFF3B5"/> <stop offset="0.45" stop-color="#FFD34C"/> <stop offset="1" stop-color="#C17E0A"/> </linearGradient> <linearGradient id="paint8_linear_151_1125_r" x1="262.301" y1="144" x2="239.901" y2="158" gradientUnits="userSpaceOnUse"> <stop stop-color="#FFF3B5"/> <stop offset="0.45" stop-color="#FFD34C"/> <stop offset="1" stop-color="#C17E0A"/> </linearGradient> <linearGradient id="paint9_linear_151_1125_r" x1="262.302" y1="143.999" x2="239.902" y2="157.999" gradientUnits="userSpaceOnUse"> <stop stop-color="#FFF3B5"/> <stop offset="0.45" stop-color="#FFD34C"/> <stop offset="1" stop-color="#C17E0A"/> </linearGradient> </defs> </svg> </div>
     <img class="divider" src="assets/divider.png" alt="" style="margin-top:20px">
     <div class="rframe">
-      <p>${z.text}</p>
-      <h3>${L('ចរិតលក្ខណៈ','性格')}</h3><p>${r.nature}</p>
-      <h3>${L('ចិត្ត និងស្នេហា','心与爱')}</h3><p>${r.love}${LOVE_LINE[ANS.love] ? ' '+L(...LOVE_LINE[ANS.love]) : ''}</p>
-      <h3>${L('ផ្លូវជីវិត','人生之路')}</h3><p>${r.path}${WORK_LINE[ANS.work] ? ' '+L(...WORK_LINE[ANS.work]) : ''}</p>
-      <h3 class="warn">${L('ត្រូវប្រយ័ត្ន','需要小心')}</h3><p>${L(...ZODIAC_WARN[ZODIAC.indexOf(z)])} ${L(DAY_WARN[new Date(y,m-1,d).getDay()].km, DAY_WARN[new Date(y,m-1,d).getDay()].zh)}</p>
-      <h3 class="warn">${L('អ្វីដែលគួរចៀសវាង','要避开的事')}</h3>
+      <h3><img class="hIcon" src="assets/icons/lotus-rays.png" alt="">${L('សំណាងឆ្នាំ'+z.km, z.zh+'年运势')}</h3><p>${z.text}</p>
+      <h3><img class="hIcon" src="assets/icons/mirror.png" alt="">${L('ចរិតលក្ខណៈ','性格')}</h3><p>${r.nature}</p>
+      <h3><img class="hIcon" src="assets/icons/twin-lotus.png" alt="">${L('ចិត្ត និងស្នេហា','心与爱')}</h3><p>${r.love}${LOVE_LINE[ANS.love] ? ' '+L(...LOVE_LINE[ANS.love]) : ''}</p>
+      <h3><img class="hIcon" src="assets/icons/sun-path.png" alt="">${L('ផ្លូវជីវិត','人生之路')}</h3><p>${r.path}${WORK_LINE[ANS.work] ? ' '+L(...WORK_LINE[ANS.work]) : ''}</p>
+      <h3 class="warn"><img class="hIcon" src="assets/icons/shield.png" alt="">${L('ត្រូវប្រយ័ត្ន','需要小心')}</h3><p>${L(...ZODIAC_WARN[ZODIAC.indexOf(z)])} ${L(DAY_WARN[new Date(y,m-1,d).getDay()].km, DAY_WARN[new Date(y,m-1,d).getDay()].zh)}</p>
+      <h3 class="warn"><img class="hIcon" src="assets/bullet.png" alt="">${L('អ្វីដែលគួរចៀសវាង','要避开的事')}</h3>
       <ul class="avoid">${[...DAY_WARN[new Date(y,m-1,d).getDay()].avoid, LOVE_AVOID[ANS.love], WORK_AVOID[ANS.work]].filter(Boolean).map(a=>`<li>${L(...a)}</li>`).join('')}</ul>
-      ${ANS.worry ? `<h3>${who==='self' ? L('អំពីកង្វល់របស់អ្នក','关于你的烦恼') : L('អំពីកង្វល់ចំពោះគាត់','关于TA的烦恼')}</h3><p>${L('«'+ANS.worry+'»… លោកគ្រូបិទភ្នែក ហើយញញឹមតិចៗ។ អ្វីដែលធ្វើឲ្យអ្នកព្រួយ មិនធំដូចដែលអ្នកគិតទេ។ ចម្លើយនឹងមកដល់ ពេលអ្នកឈប់រត់គេចពីវា — ចូរជំហានមួយតូចសិន ក្នុងសប្តាហ៍នេះ។','「'+ANS.worry+'」……大师闭上眼，微微一笑。让你烦恼的事，并没有你想的那么大。当你不再逃避，答案就会出现——这周先迈出一小步吧。')}</p>` : ''}
+      ${ANS.worry ? `<h3><img class="hIcon" src="assets/icons/hand-flame.png" alt="">${who==='self' ? L('អំពីកង្វល់របស់អ្នក','关于你的烦恼') : L('អំពីកង្វល់ចំពោះគាត់','关于TA的烦恼')}</h3><p>${L('«'+ANS.worry+'»… លោកគ្រូបិទភ្នែក ហើយញញឹមតិចៗ។ អ្វីដែលធ្វើឲ្យអ្នកព្រួយ មិនធំដូចដែលអ្នកគិតទេ។ ចម្លើយនឹងមកដល់ ពេលអ្នកឈប់រត់គេចពីវា — ចូរជំហានមួយតូចសិន ក្នុងសប្តាហ៍នេះ។','「'+ANS.worry+'」……大师闭上眼，微微一笑。让你烦恼的事，并没有你想的那么大。当你不再逃避，答案就会出现——这周先迈出一小步吧。')}</p>` : ''}
     </div>
     <img class="divider" src="assets/divider.png" alt="" style="margin-top:20px">
     <p style="text-align:center;margin-top:26px;color:var(--gold)">${L('«ទៀនបាននិយាយហើយ។ សូមដើរដោយសុខសាន្ត។»','«蜡烛已经开口。愿你一路平安。»')}</p>
