@@ -249,7 +249,7 @@
   #fateVid.on { opacity:1; }
   /* Opening: the camera walks in through the door once, then holds on the table and cloth */
   #roomVid { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity 1.8s ease-in-out; pointer-events:none; }
-  #roomVid.on { opacity:1; }
+  #roomVid.on { opacity:1; transition:none; }   /* appears at once behind the black dip — no blend with the still room image */
   #roomIdle { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .6s ease; pointer-events:none; }
   #roomIdle.on { opacity:1; }
   /* Look-around panorama: no extra zoom or drift, so the image stays as sharp as possible */
@@ -398,7 +398,7 @@ html,body,*{scrollbar-width:none;-ms-overflow-style:none}
   #reading .rframe h3.warn { color:#f0a08a; }
   #reading .rframe ul.avoid { list-style:none; margin:6px 0 4px; padding:0; }
   #reading .rframe ul.avoid li { position:relative; padding:4px 0 4px 26px; font-family:'Battambang','Noto Serif SC',serif; font-size:16px; line-height:1.7; color:#f3dcc0; }
-  #reading .rframe ul.avoid li::before { content:'✕'; position:absolute; left:4px; top:5px; font-size:13px; color:#e2785f; }
+  #reading .rframe ul.avoid li::before { content:''; position:absolute; left:2px; top:.55em; width:16px; height:16px; background:url('assets/avoid-x.png') center / contain no-repeat; filter:drop-shadow(0 1px 2px rgba(0,0,0,.5)); }
 </style>
 </head>
 <body>
@@ -907,7 +907,8 @@ $('#enterBtn').onclick=e=>{ e.stopPropagation();   // dip to black, then the wal
   try{ sfx.start(); }catch(_){}
   document.querySelectorAll('video.later').forEach(v=>{ v.preload='auto'; v.load(); });   // now fetch the rest of the story's videos
   setTimeout(()=>{ begin(); next.page6=true; show($('#roomVid').readyState>=2 ? 0 : STORY.findIndex(s=>s.form));
-    setTimeout(()=>k.classList.remove('on'), 500); }, 900);
+    const rv2=$('#roomVid'); const lift=()=>setTimeout(()=>k.classList.remove('on'), 150);
+    if(rv2.classList.contains('on') && rv2.readyState<2){ rv2.addEventListener('playing', lift, {once:true}); setTimeout(lift, 2500); } else setTimeout(lift, 350); }, 900);
 };   // walk into the room first, then the questions   // after the comic: straight to "when were you born?"
 
 /* ---------- Extra questions (after the birth date): time, place, gender, orientation, love, work, worry ---------- */
