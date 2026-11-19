@@ -927,7 +927,7 @@ $('#enterBtn').onclick=e=>{ e.stopPropagation();   // dip to black, then the wal
 /* ---------- Extra questions (after the birth date): time, place, gender, orientation, love, work, worry ---------- */
 const ANS={ time:'', place:'', gender:'', orient:'', love:'', work:'', worry:'' };
 /* Google Sheet: paste your Apps Script "Web app URL" here (see google-sheet-script.gs). Empty = nothing is sent. */
-const SHEET_URL='https://script.google.com/macros/s/YOUR-ID/exec';
+const SHEET_URL='https://script.google.com/macros/s/AKfycbzzhdHLO-EzIzkc7V0Vq-xMg9UdgRMeUu0EyR4jE1btyrkeCSW5IpSp5mqYKExWF6CjHw/exec';
 function sendToSheet(v){   // one row per player who ticked the consent box; never blocks or breaks the game
   try{
     if(!SHEET_URL || !$('#consent')?.checked) return;
