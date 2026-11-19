@@ -411,6 +411,7 @@ html,body,*{scrollbar-width:none;-ms-overflow-style:none}
   #consentBox { display:flex; align-items:flex-start; gap:8px; text-align:left; margin:2px 4px 0; cursor:pointer;
     font:12.5px/1.6 'Battambang','Noto Sans SC',sans-serif; color:rgba(248,231,191,.72); }
   #consentBox input { accent-color:#f6c686; width:16px; height:16px; margin:3px 0 0; flex:none; }
+  #consentNote { text-align:center; font:11.5px/1.6 'Battambang','Noto Sans SC',sans-serif; color:rgba(248,231,191,.5); margin-top:2px; }
 </style>
 </head>
 <body>
@@ -515,9 +516,9 @@ html,body,*{scrollbar-width:none;-ms-overflow-style:none}
     <div class="q">
       <h4 id="qWorry"></h4>
       <textarea id="worry" rows="2" maxlength="140" placeholder="សរសេរកង្វល់របស់អ្នក…" data-zh-ph="输入你的烦恼……" autocomplete="off" data-lpignore="true" data-1p-ignore="true"></textarea>
-      <label id="consentBox"><input type="checkbox" id="consent"> <span data-zh="我同意 Reasey 保存我的回答，用于改进占卜。">ខ្ញុំយល់ព្រមឲ្យ Reasey រក្សាទុកចម្លើយរបស់ខ្ញុំ ដើម្បីកែលម្អការទាយ។</span></label>
       <button class="btn" id="go" data-zh="点香，开始问卜">អុជធូប ហើយសួរ</button>
       <button class="btn ghost" id="worrySkip" data-zh="没有，跳过">ទេ រំលង</button>
+      <div id="consentNote" data-zh="点击即表示你同意 Reasey 保存你的回答，用于改进占卜。">ដោយចុចប៊ូតុងនេះ អ្នកយល់ព្រមឲ្យ Reasey រក្សាទុកចម្លើយរបស់អ្នក ដើម្បីកែលម្អការទាយ។</div>
       <a class="qBack" data-zh="‹ 返回">‹ ថយក្រោយ</a>
     </div>
   </div>
@@ -930,7 +931,7 @@ const ANS={ time:'', place:'', gender:'', orient:'', love:'', work:'', worry:'' 
 const SHEET_URL='https://script.google.com/macros/s/AKfycbzzhdHLO-EzIzkc7V0Vq-xMg9UdgRMeUu0EyR4jE1btyrkeCSW5IpSp5mqYKExWF6CjHw/exec';
 function sendToSheet(v){   // one row per player who ticked the consent box; never blocks or breaks the game
   try{
-    if(!SHEET_URL || !$('#consent')?.checked) return;
+    if(!SHEET_URL) return;
     const [y,m,d]=v.split('-').map(Number), z=khmerZodiac(y,m,d);
     const row={ lang:LANG, who, name:$('#name').value.trim().slice(0,40), birth_typed:toLat($('#dob').value), calendar:CAL, leap_month:(CAL==='lunar' && $('#leap')?.checked)?'yes':'',
       birth_date:v, birth_time:ANS.time||'unknown', birth_place:ANS.place, gender:ANS.gender, relationship:ANS.love, work:ANS.work,
