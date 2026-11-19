@@ -412,6 +412,14 @@ html,body,*{scrollbar-width:none;-ms-overflow-style:none}
     font:12.5px/1.6 'Battambang','Noto Sans SC',sans-serif; color:rgba(248,231,191,.72); }
   #consentBox input { accent-color:#f6c686; width:16px; height:16px; margin:3px 0 0; flex:none; }
   #consentNote { text-align:center; font:11.5px/1.6 'Battambang','Noto Sans SC',sans-serif; color:rgba(248,231,191,.5); margin-top:2px; }
+  #againLink { display:inline-flex; align-items:center; gap:4px; text-underline-offset:3px; }
+  #againLink .againIcon { width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; flex:none; }
+  #againLink:hover .againIcon { transform:rotate(-40deg); transition:transform .3s; }
+  /* Telegram contact */
+  #reading .tgLead { text-align:center; margin:22px 0 2px; font:14px/1.6 'Battambang','Noto Serif SC',serif; color:rgba(248,231,191,.8); }
+  #reading .tgBtn { text-decoration:none; gap:8px; }
+  #reading .tgBtn .tgIcon { width:18px; height:18px; fill:#8fd3ff; flex:none; filter:drop-shadow(0 1px 2px rgba(0,0,0,.6)); }
+  #reading .tgInline { color:#8fd3ff; white-space:nowrap; text-underline-offset:3px; }
 </style>
 </head>
 <body>
@@ -1317,6 +1325,12 @@ function avoidList(y,m,d,z,name){   // personal mix chosen by name + birth date:
   return [ ...pickN(DAY_WARN[new Date(y,m-1,d).getDay()].avoid, 1, k+'day'), ...pickN(ZODIAC_AVOID[ZODIAC.indexOf(z)], 1, k+'zod'), ...pickN(GENERAL_AVOID, 2, k+'gen'),
     LOVE_AVOID[ANS.love], WORK_AVOID[ANS.work] ].filter(Boolean);
 }
+const TG_USER='myreasey_support';
+function tgLink(name, y, m, d, z){
+  const msg=L(`សួស្តីលោកគ្រូ ខ្ញុំឈ្មោះ ${name} កើតថ្ងៃ ${String(d).padStart(2,'0')}/${String(m).padStart(2,'0')}/${y} (ឆ្នាំ${z.km}) ចង់សួរបន្ថែមអំពីវាសនា។`,
+              `大师您好，我叫 ${name}，生于 ${y}/${String(m).padStart(2,'0')}/${String(d).padStart(2,'0')}（${z.zh}年），想进一步了解我的命运。`);
+  return `https://t.me/${TG_USER}?text=${encodeURIComponent(msg)}`;
+}
 function showReading(v){
   startReadingVideo();
   const [y,m,d]=v.split('-').map(Number);
@@ -1342,13 +1356,15 @@ function showReading(v){
       <h3 class="warn"><img class="hIcon" src="assets/icons/shield.png" alt="">${L('ត្រូវប្រយ័ត្ន','需要小心')}</h3><p>${L(...ZODIAC_WARN[ZODIAC.indexOf(z)])} ${L(DAY_WARN[new Date(y,m-1,d).getDay()].km, DAY_WARN[new Date(y,m-1,d).getDay()].zh)}</p>
       <h3 class="warn"><img class="hIcon" src="assets/bullet.png" alt="">${L('អ្វីដែលគួរចៀសវាង','要避开的事')}</h3>
       <ul class="avoid">${avoidList(y,m,d,z,name).map(a=>`<li>${L(...a)}</li>`).join('')}</ul>
-      ${ANS.worry ? `<h3><img class="hIcon" src="assets/icons/hand-flame.png" alt="">${who==='self' ? L('អំពីកង្វល់របស់អ្នក','关于你的烦恼') : L('អំពីកង្វល់ចំពោះគាត់','关于TA的烦恼')}</h3><p>${L('«'+ANS.worry+'»… លោកគ្រូបិទភ្នែក ហើយញញឹមតិចៗ។ ','「'+ANS.worry+'」……大师闭上眼，微微一笑。')+worryAnswer(ANS.worry)}</p>` : ''}
+      ${ANS.worry ? `<h3><img class="hIcon" src="assets/icons/hand-flame.png" alt="">${who==='self' ? L('អំពីកង្វល់របស់អ្នក','关于你的烦恼') : L('អំពីកង្វល់ចំពោះគាត់','关于TA的烦恼')}</h3><p>${L('«'+ANS.worry+'»… លោកគ្រូបិទភ្នែក ហើយញញឹមតិចៗ។ ','「'+ANS.worry+'」……大师闭上眼，微微一笑。')+worryAnswer(ANS.worry)} <a class="tgInline" href="${tgLink(name,y,m,d,z)}" target="_blank" rel="noopener">${L('ចង់ពិភាក្សាបន្ថែម? → Telegram','想多聊聊？→ Telegram')}</a></p>` : ''}
     </div>
     <img class="divider" src="assets/divider.png" alt="" style="margin-top:20px">
     <p style="text-align:center;margin-top:26px;color:var(--gold)">${L('«ទៀនបាននិយាយហើយ។ សូមដើរដោយសុខសាន្ត។»','«蜡烛已经开口。愿你一路平安。»')}</p>
+    <p class="tgLead">${L('ចង់ដឹងលម្អិតជាងនេះ? សួរលោកគ្រូផ្ទាល់','想知道更详细的？直接问大师')}</p>
+    <a class="btn tgBtn" id="tgBtn" href="${tgLink(name,y,m,d,z)}" target="_blank" rel="noopener"><svg class="tgIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 3.6 2.9 10.8c-1.1.4-1.1 1.3-.2 1.6l4.7 1.5 1.8 5.6c.2.6.4.8.9.8.4 0 .6-.2.9-.5l2.3-2.2 4.7 3.5c.9.5 1.5.2 1.7-.8l3.1-14.6c.3-1.3-.5-1.9-1.3-1.5zM9.7 14.5l-.4 3.9-1.5-4.8 9.9-6.3c.5-.3.9-.1.5.2z"/></svg>${L('សួរលោកគ្រូផ្ទាល់តាម Telegram','在 Telegram 上直接问大师')}</a>
     <button class="btn" id="siteBtn">${L('មើលរាសីពេញលេញរបស់អ្នក','查看你的完整运势')}</button>
     <button class="btn" id="walkBtn">${L('ដើរមើលក្នុងផ្ទះលោកគ្រូ','在大师的屋里走走')}</button>
-    <div class="note">${L('សម្រាប់ការកម្សាន្តតែប៉ុណ្ណោះ។','仅供娱乐。')} · <a href="#" id="againLink" style="color:var(--gold)">${L('ទាយម្ដងទៀត','再占一次')}</a> · <a href="#" id="langLink" class="${L('','km')}" style="color:var(--gold)">${L('中文','ខ្មែរ')}</a></div>`;
+    <div class="note">${L('សម្រាប់ការកម្សាន្តតែប៉ុណ្ណោះ។','仅供娱乐。')} · <a href="#" id="againLink" style="color:var(--gold)"><svg class="againIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg>${L('ទាយម្ដងទៀត','再占一次')}</a> · <a href="#" id="langLink" class="${L('','km')}" style="color:var(--gold)">${L('中文','ខ្មែរ')}</a></div>`;
   setTimeout(()=>R.classList.add('on'), 600);
   $('#walkBtn').onclick=e=>{ e.stopPropagation(); openExplore(); };
   if(!ex.ok) $('#walkBtn').remove();
